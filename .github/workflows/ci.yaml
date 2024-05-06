@@ -41,10 +41,6 @@ jobs:
       - name: Test the project
         run: cargo test --target ${{ matrix.target }} --release --verbose
 
-      - name: find output binary
-        run: |
-          find . -name helmscript -type f
-
       - name: Get the project version
         id: cargo_metadata
         run: |
@@ -54,11 +50,8 @@ jobs:
         run: |
           BINARY_NAME="helmscript"
           PACKAGE_NAME="${BINARY_NAME}-${{ env.version }}-${{ matrix.target }}.tar.gz"
+          OUTPUT_DIR="target/${{ matrix.target }}/release"
           mkdir -p packaging
-          cp target/release/${BINARY_NAME} packaging/
+          cp ${OUTPUT_DIR}/${BINARY_NAME} packaging/
           tar -czf ${PACKAGE_NAME} -C packaging ${BINARY_NAME}
           mv ${PACKAGE_NAME} ./
-
-      - name: List files
-        run: |
-          ls -lah
