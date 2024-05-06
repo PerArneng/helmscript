@@ -55,6 +55,11 @@ jobs:
         run: |
           ls -lah target/packages/helmster-*.tar.gz
 
+      - mame: Checksums
+        run: |
+          shasum -a 256 target/packages/*.tar.gz | sed s/"target\/packages\/"// > checksums.txt
+
+
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -62,3 +67,5 @@ jobs:
           draft: false
           files: |
             target/packages/helmster-*.tar.gz
+            checksums.txt
+
