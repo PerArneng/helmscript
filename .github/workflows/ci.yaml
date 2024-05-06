@@ -1,0 +1,60 @@
+name: Cargo Build, Test & Package
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_test_and_package:
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        run: |
+          rustup update ${{ matrix.toolchain }}
+          rustup default ${{ matrix.toolchain }}
+          rustup target add ${{ matrix.target }}
+
+      - name: Build the project
+        run: cargo build --target ${{ matrix.target }} --release --verbose
+
+      - name: Test the project
+        run: cargo test --target ${{ matrix.target }} --release --verbose
+
+      - name: Get the project version
+        id: cargo_metadata
+        run: |
+          echo "version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')" >> $GITHUB_ENV
+
+      - name: Create a package
+        run: |
+          BINARY_NAME="helmscript"
+          PACKAGE_NAME="${BINARY_NAME}-${{ env.version }}-${{ matrix.target }}.tar.gz"
+          mkdir -p packaging
+          cp target/release/${BINARY_NAME} packaging/
+          tar -czf ${PACKAGE_NAME} -C packaging ${BINARY_NAME}
+          mv ${PACKAGE_NAME} ./
+
+      - name: List files
+        run: |
+          ls -lah
