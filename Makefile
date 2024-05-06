@@ -10,3 +10,6 @@ git-tag: ## Tag the current commit with the version number
 git-push-tags: ## Push commits and tags to the remote
 	@git push && git push --tags
 
+.PHONY: help
+help: ## Display this help.
+	@sh makefile-help.sh $(MAKEFILE_LIST)
