@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Rust
         run: |
@@ -41,21 +41,29 @@ jobs:
       - name: Test the project
         run: cargo test --target ${{ matrix.target }} --release --verbose
 
-      - name: Get the project version
+      - name: Get the project version and name
         id: cargo_metadata
         run: |
           echo "version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')" >> $GITHUB_ENV
+          echo "project_name=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')" >> $GITHUB_ENV
 
       - name: Create a package
         run: |
-          BINARY_NAME="helmscript"
+          BINARY_NAME=${{ env.project_name }}
           PACKAGE_NAME="${BINARY_NAME}-${{ env.version }}-${{ matrix.target }}.tar.gz"
           OUTPUT_DIR="target/${{ matrix.target }}/release"
           mkdir -p packaging
           cp ${OUTPUT_DIR}/${BINARY_NAME} packaging/
           tar -czf ${PACKAGE_NAME} -C packaging ${BINARY_NAME}
 
-      - name: List
+      - name: List *.tar.gz
         run: |
-          ls -lah
+          ls -lah ${{ env.project_name }}-*.tar.gz
 
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        draft: false
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ${{ env.project_name }}-*.tar.gz
