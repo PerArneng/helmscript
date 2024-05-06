@@ -18,16 +18,9 @@ jobs:
           - stable
         os:
           - ubuntu-latest
-          - macos-latest
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-          - os: macos-latest
-            target: x86_64-apple-darwin
-          - os: macos-latest
-            target: aarch64-apple-darwin
+        target:
+          - wasm32-wasip1
+          - x86_64-unknown-linux-gnu
 
     runs-on: ${{ matrix.os }}
 
@@ -60,7 +53,7 @@ jobs:
           PACKAGE_NAME="${BINARY_NAME}-${{ env.version }}-${{ matrix.target }}.tar.gz"
           OUTPUT_DIR="target/${{ matrix.target }}/release"
           mkdir -p packaging
-          cp ${OUTPUT_DIR}/${BINARY_NAME} packaging/
+          cp ${OUTPUT_DIR}/${BINARY_NAME}* packaging/
           tar -czf ${PACKAGE_NAME} -C packaging ${BINARY_NAME}
 
       - name: List *.tar.gz
