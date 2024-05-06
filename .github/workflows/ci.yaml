@@ -41,11 +41,9 @@ jobs:
       - name: Test the project
         run: cargo test --target ${{ matrix.target }} --release --verbose
 
-      - name: List files debug
+      - name: find output binary
         run: |
-          ls -lah
-          ls -lah target
-          ls -lah target/release
+          find . -name helmscript -type f
 
       - name: Get the project version
         id: cargo_metadata
