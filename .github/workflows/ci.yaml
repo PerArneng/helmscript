@@ -54,4 +54,8 @@ jobs:
           mkdir -p packaging
           cp ${OUTPUT_DIR}/${BINARY_NAME} packaging/
           tar -czf ${PACKAGE_NAME} -C packaging ${BINARY_NAME}
-          mv ${PACKAGE_NAME} ./
+
+      - name: List
+        run: |
+          ls -lah
+
