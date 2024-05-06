@@ -41,6 +41,12 @@ jobs:
       - name: Test the project
         run: cargo test --target ${{ matrix.target }} --release --verbose
 
+      - name: List files debug
+        run: |
+          ls -lah
+          ls -lah target
+          ls -lah target/release
+
       - name: Get the project version
         id: cargo_metadata
         run: |
